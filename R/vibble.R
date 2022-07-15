@@ -15,3 +15,13 @@ vibble <- function(.x, as_of) {
 
   class(v) <-c("vibble",v)
 }
+
+
+as_vibble <- function(.x, as_of) {
+  if (!all(c("ValidFrom","ValidTo") %in% colnames(.x)))
+    vibble(.x, as_of)
+  else if (null)
+    addsnapshot
+  else
+    ?
+}

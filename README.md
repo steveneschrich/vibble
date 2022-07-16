@@ -1,7 +1,7 @@
-# vibble
-A versioned tibble. This package provides a mechanism for a tibble that could change over time. Hence the name vibble.
+# tmtable
+A time machine table. This package provides a mechanism for a table (data.frame) that could change over time. Hence the name tmtable.
 
-Some applications need to have a table of data that can potentially change (rows or columns) over time. We can version the individual tables and stored them as files, list of tables, or other schemes. The goal of this package is to create an object (vibble) that is not far-removed from a tibble. Then, one can add snapshots at particular time points (or version point) and retrieve these snapshots at need. There is overhead for storing this additional information but the benefits of simpler user experience are thought to outweigh the costs in this package.
+Some applications need to have a table of data that can potentially change (rows or columns) over time. We can version the individual tables and stored them as files, list of tables, or other schemes. The goal of this package is to create an object (tmtable) that is not far-removed from a data frame. Then, one can add snapshots at particular time points (or version point) and retrieve these snapshots at need. There is overhead for storing this additional information but the benefits of simpler user experience are thought to outweigh the costs in this package.
 
 ## Background
 
@@ -38,45 +38,45 @@ Within the package, I try to consistently use the term `as_of` to refer to versi
 There are relatively few operations in this package. These are outlined below to get a sense of the package functionality.
 
 ```
-vibble(tibble, as_of)
+tmtable(df, as_of)
 ```
-Create a new vibble, either with or without date, as of the specific version.
+Create a new tmtable, either with or without date, as of the specific version.
 
 ```
-add_snapshot(vibble, tibble, as_of)
+add_snapshot(tmtable, df, as_of)
 ```
-Add a snapshot as of a specific version. This is phrased rather specifically on purpose. You cannot "insert" data at a snapshot, only provide a full snapshot of the tibble at a specific point. Incremental insertions are not allowd. Behind the scenes, this makes the work easier:
+Add a snapshot as of a specific version. This is phrased rather specifically on purpose. You cannot "insert" data at a snapshot, only provide a full snapshot of the data frame at a specific point. Incremental insertions are not allowd. Behind the scenes, this makes the work easier:
 
 - Remove rows not in the tibble (set the ValidTo field)
-- Add rows in the tibble not in the vibble
-- Do nothing for rows in both the tibble and vibble
+- Add rows in the tibble not in the tmtable
+- Do nothing for rows in both the tibble and tmtable
 
 ```
-as_of(vibble, as_of)
+as_of(tmtable, as_of)
 ```
 This returns a tibble as of a specific version point. Given the implementation description, this probably seems straightforward and it mostly is. The only caveat is tibble structure over time (see below).
 
 ## Example
-Consider the following motivation example. I want to build up a tibble of files within this package over time. This would allow me to see the file list at any point in the past. I may add some files, delete some files and modify some files. How does this work with respect to a vibble?
+Consider the following motivation example. I want to build up a tibble of files within this package over time. This would allow me to see the file list at any point in the past. I may add some files, delete some files and modify some files. How does this work with respect to a tmtable?
 
 Lets assume I get a list of files as such:
 ```
 file_list <- fs::dir_info(".",recurse=TRUE)
 ```
 
-I can create a vibble by doing the following:
+I can create a tmtable by doing the following:
 ```
-v <- vibble::vibble(file_list, as_of = lubridate::now())
+v <- tmtable::tmtable(file_list, as_of = lubridate::now())
 ```
 
-Great, now I initialized a vibble with a snapshot as of right now (a time/date). Suppose I then start working on the code and make a lot of changes. So I want to create a new snapshot:
+Great, now I initialized a tmtable with a snapshot as of right now (a time/date). Suppose I then start working on the code and make a lot of changes. So I want to create a new snapshot:
 ```
-v <- vibble::add_snapshot(v, fs::dir_info(".", recurse=TRUE), as_of = lubridate::now())
+v <- tmtable::add_snapshot(v, fs::dir_info(".", recurse=TRUE), as_of = lubridate::now())
 ```
 
 What if I forgot to make a snapshot when I first started and there was just a DESCRIPTION file? Assuming it has not changed since then, let's add that snapshot in:
 ```
-v<-vibble::add_snapshot(v, fs::dir_info(".", glob = "DESCRIPTION"), as_of=lubridate::as_datetime("2022-03-01 01:00:00"))
+v<-tmtable::add_snapshot(v, fs::dir_info(".", glob = "DESCRIPTION"), as_of=lubridate::as_datetime("2022-03-01 01:00:00"))
 ```
 
 Great, let's take a look at what we can do now that we have three different time points.
@@ -84,7 +84,7 @@ Great, let's take a look at what we can do now that we have three different time
 TBD
 
 ## Tibble structure over time
-The vibble idea works well for data that changes over time. But it also works for tibble structures that change over time. Let's suppose you have a tibble `v` and you add a new column to `v`. You can store this in your vibble.
+The tmtable idea works well for data that changes over time. But it also works for tibble structures that change over time. Let's suppose you have a tibble `v` and you add a new column to `v`. You can store this in your tmtable.
 
 Right now, the implementation is to drop all columns with NA's when extracting a tibble in `as_of()`. That means we can store the table with all possible columns (union of all time points) and just drop columns that aren't used at a specific time. 
 

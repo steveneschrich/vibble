@@ -1,12 +1,16 @@
-Package: vibble
-Title: What the Package Does (One Line, Title Case)
-Version: 0.0.0.9000
+Package: tmtable
+Title: A Time Machine Table to Store Data Over Time
+Version: 0.0.0.9001
 Authors@R: 
-    person("First", "Last", , "first.last@example.com", role = c("aut", "cre"),
+    person("Steven", "Eschrich", , "Steven.Eschrich@moffitt.org", role = c("aut", "cre"),
            comment = c(ORCID = "YOUR-ORCID-ID"))
-Description: What the package does (one paragraph).
-License: `use_mit_license()`, `use_gpl3_license()` or friends to pick a
-    license
+Description: This package implements a temporal table, or as this package terms is, a
+ time machine table. The purpose is to store changes to a table over time such that one
+ can pull out data as of specific time points. To do this, the package implements a data
+ frame with a few extra columns in the form of a "temporal table". This involves a 
+ "ValidFrom" and "ValidTo" field for the purpose. Routines are provided to make working with
+ this data structure easy. Note this is an R6 object.
+License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.0

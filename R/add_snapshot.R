@@ -1,6 +1,6 @@
 #' Add a snapshot
 #'
-#' @description Given a data frame, update the vibble by adding new rows
+#' @description Given a data frame, update the tmtable by adding new rows
 #' and documenting removed rows. Changed rows show up as removed rows (existing data)
 #' and added rows (new data).
 #'
@@ -79,4 +79,4 @@ add_snapshot <- function(newtbl, as_of = lubridate::now()) {
   )
 
   self
-},
+}

@@ -89,3 +89,13 @@ The tmtable idea works well for data that changes over time. But it also works f
 Right now, the implementation is to drop all columns with NA's when extracting a tibble in `as_of()`. That means we can store the table with all possible columns (union of all time points) and just drop columns that aren't used at a specific time. 
 
 We may move to a more sophisticated structure since it's possible you might store a column of NA's. But not yet.
+
+# TODO
+There remains things to do with the library.
+
+- The structure of the data has to remain the same for now. This will be easier managed via a mongo backend for now, since JSON will remove empty columns during serialization. Maybe we should just do that here (serialize to JSON
+then deserialize).
+- Acutally given the above, not clear how to solve this problem. As the number of columns will grow over time (assuming we just keep empty columns that have been removed), there is no obvious way to combine data from across different structures. I suppose it's still true that JSON will give you a superset of all possible columns. But you'd need to somehow deal with the similarities - maybe check for matches excluding some NA/s?
+- I have an edge case I don't remember when the number of removed rows is the same as the number of rows in the data, meaning all data is removed. This doesn't seem problematic, but I clearly thought so at one point.
+
+

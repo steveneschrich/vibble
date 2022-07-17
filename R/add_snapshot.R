@@ -36,12 +36,6 @@
 #' }
 add_snapshot <- function(v, snapshot, as_of = lubridate::now()) {
 
-  # At this point, as_of can be anything so we don't need to check it.
-  #as_of <- lubridate::ymd(as_of, tz="UTC")
-  #TODO: if (!is.POSIXct) convert, assuming tz="UTC" perhaps?
-  #assertthat::assert_that(lubridate::is.POSIXct(as_of))
-
-
   # The snapshot should not have a ValidFrom/ValidTo or be a vibble already.
   stopifdups(snapshot)
   stopifnot(!class(snapshot) %in% "vibble")
@@ -59,7 +53,7 @@ add_snapshot <- function(v, snapshot, as_of = lubridate::now()) {
 
 }
 
-#' Title
+#' Add snapshot with same structure to vibble
 #'
 #' @param v
 #' @param snapshot
@@ -107,35 +101,9 @@ add_snapshot_with_same_structure <- function(v, snapshot, as_of) {
   .x
 }
 
-# This is where the magic happens with a vibble.
-#'
-#' First, we need to bifurcate. If the structure is the same (save for column order I guess)
-#' then we can do the "easy" version. If the structure is different, it could be more than
-#' before. If so, we need to add new columns that are empty (and the same type as the real data).
-#' If the structure is less than before we need to add the old stuff into the new data.
-#' Question: what does bind_rows do?
-#'
-#' From the man page: When row-binding, columns are matched by name, and any missing columns will be filled with NA.
-#'
-#' So bind_rows really does a good job with this stuff. My biggest thing is to figure out what rows
-#' are new, old, etc.
-#'
-#' So I will bind common, new, removed. Common is via a join on fields that exclude ValidFrom, ValidTo but
-#' are common. This has to assume that common fields are all but ValidFrom, ValidTo. So the first decision
-#' point is structure.
-#'
-#' If the same structure, join for common, new, removed. Then bind. Same as it is now.
-#'
-#' If different structure, there is no common - everything is invalidated and new is everything else.
-#'
-#'
 
 
-#add_snapshot() <- function() {
-  # decide same or different, then send to sub.
-#}
-
-#' Title
+#' Add snapshot with different structure to vibble
 #'
 #' @details This function assumes that the vibble and the snapshot have different structures. As such,
 #' there is no way to reuse data from prior time points; everything is invalidated for `as_of` point.
@@ -161,7 +129,10 @@ add_snapshot_with_different_structure <- function(v, snapshot, as_of) {
   # The snapshot is ValidFrom the as_of point
   snapshot <- dplyr::mutate(snapshot, ValidFrom = as_of)
 
-  # Now we can combine the two sets.
+  # Now we can combine the two sets. Note that bind_rows takes care of two important things:
+  # matching column names between the two (if they are out of order) and filling in missing
+  # columns with NA's. This is exactly the behavior we need, since the result needs to be
+  # a union of all columns, with NA's filled in as needed.
   .x <- dplyr::bind_rows(v, snapshot)
 
   .x

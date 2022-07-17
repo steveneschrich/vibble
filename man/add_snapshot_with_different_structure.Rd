@@ -2,11 +2,7 @@
 % Please edit documentation in R/add_snapshot.R
 \name{add_snapshot_with_different_structure}
 \alias{add_snapshot_with_different_structure}
-\title{First, we need to bifurcate. If the structure is the same (save for column order I guess)
-then we can do the "easy" version. If the structure is different, it could be more than
-before. If so, we need to add new columns that are empty (and the same type as the real data).
-If the structure is less than before we need to add the old stuff into the new data.
-Question: what does bind_rows do?}
+\title{Add snapshot with different structure to vibble}
 \usage{
 add_snapshot_with_different_structure(v, snapshot, as_of)
 }
@@ -14,22 +10,9 @@ add_snapshot_with_different_structure(v, snapshot, as_of)
 \item{as_of}{}
 }
 \description{
-From the man page: When row-binding, columns are matched by name, and any missing columns will be filled with NA.
+Add snapshot with different structure to vibble
 }
 \details{
-So bind_rows really does a good job with this stuff. My biggest thing is to figure out what rows
-are new, old, etc.
-
-So I will bind common, new, removed. Common is via a join on fields that exclude ValidFrom, ValidTo but
-are common. This has to assume that common fields are all but ValidFrom, ValidTo. So the first decision
-point is structure.
-
-If the same structure, join for common, new, removed. Then bind. Same as it is now.
-
-If different structure, there is no common - everything is invalidated and new is everything else.
-
-Title
-
 This function assumes that the vibble and the snapshot have different structures. As such,
 there is no way to reuse data from prior time points; everything is invalidated for \code{as_of} point.
 

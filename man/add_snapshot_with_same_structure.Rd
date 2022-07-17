@@ -2,7 +2,7 @@
 % Please edit documentation in R/add_snapshot.R
 \name{add_snapshot_with_same_structure}
 \alias{add_snapshot_with_same_structure}
-\title{Title}
+\title{Add snapshot with same structure to vibble}
 \usage{
 add_snapshot_with_same_structure(v, snapshot, as_of)
 }
@@ -10,5 +10,5 @@ add_snapshot_with_same_structure(v, snapshot, as_of)
 \item{as_of}{}
 }
 \description{
-Title
+Add snapshot with same structure to vibble
 }

@@ -24,3 +24,5 @@ Suggests:
     magrittr,
     tibble
 Config/testthat/edition: 3
+Remotes:
+  steveneschrich/vibble

@@ -4,7 +4,7 @@
 \alias{as_vibble}
 \title{Convert data frame to a vibble}
 \usage{
-as_vibble(.x, as_of)
+as_vibble(.x, as_of = lubridate::today())
 }
 \arguments{
 \item{.x}{A data frame/tibble to convert to a vibble.}

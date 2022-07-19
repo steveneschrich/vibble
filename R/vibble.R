@@ -14,19 +14,18 @@
 #' vibble(iris, as_of="2022-01-01")
 #' }
 vibble <- function(.x, as_of=lubridate::today()) {
-  stopifnot(!utils::hasName(.x, "ValidFrom") & !utils::hasName(.x, "ValidTo"))
-
   stopifdups(.x)
 
-  # A vibble is a tibble with a ValidFrom and ValidTo field.
-  v <- dplyr::mutate(
-    .x,
-    ValidFrom = as_of,
-    ValidTo = type_converter(as_of)(NA)
-  )
+  v <- new_vibble(.x)
 
-  # We distinguish a vibble by adding the class name to the object.
-  class(v) <-c("vibble",class(v))
+  if ( !(utils::hasName(.x, "ValidFrom") && utils::hasName(.x, "ValidTo"))) {
+    # A vibble is a tibble with a ValidFrom and ValidTo field.
+    v <- dplyr::mutate(
+      .x,
+      ValidFrom = as_of,
+      ValidTo = type_converter(as_of)(NA)
+    )
+  }
 
   v
 }
@@ -47,12 +46,20 @@ stopifdups <- function(.x) {
 #' @export
 #'
 #' @examples
-as_vibble <- function(.x, as_of) {
+as_vibble <- function(.x, as_of=lubridate::today()) {
   stopifdups(.x)
-  if (!all(c("ValidFrom","ValidTo") %in% colnames(.x)))
-    vibble(.x, as_of)
-  else {
-    rlang::warn("This function doesn't completely work.")
-    .x
-  }
+
+  vibble(.x, as_of)
+}
+
+#' Title
+#'
+#' @param x
+#'
+#' @return
+#' @export
+#'
+#' @examples
+new_vibble <- function(x) {
+  tibble::new_tibble(x, class = "tbl_vdf")
 }

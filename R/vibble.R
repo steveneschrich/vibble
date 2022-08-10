@@ -18,10 +18,10 @@ vibble <- function(.x, as_of=lubridate::today()) {
 
   v <- new_vibble(.x)
 
-  if ( !(utils::hasName(.x, "ValidFrom") && utils::hasName(.x, "ValidTo"))) {
+  if ( !(utils::hasName(v, "ValidFrom") && utils::hasName(v, "ValidTo"))) {
     # A vibble is a tibble with a ValidFrom and ValidTo field.
     v <- dplyr::mutate(
-      .x,
+      v,
       ValidFrom = as_of,
       ValidTo = type_converter(as_of)(NA)
     )

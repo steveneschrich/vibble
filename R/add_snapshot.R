@@ -38,7 +38,7 @@ add_snapshot <- function(v, snapshot, as_of = lubridate::now()) {
 
   # The snapshot should not have a ValidFrom/ValidTo or be a vibble already.
   stopifdups(snapshot)
-  stopifnot(!class(snapshot) %in% "vibble")
+  stopifnot(is_vibble(v))
   stopifnot(!any(colnames(snapshot) %in% c("ValidFrom","ValidTo")))
 
   # Choose function based on if v and snapshot have the same structure
@@ -87,8 +87,11 @@ add_snapshot_with_same_structure <- function(v, snapshot, as_of) {
     )
   # Removed rows are in the original table but not in the newer table.
   removed_rows <- dplyr::anti_join(v, snapshot, by = common_fields) |>
+    # Only add time point of removal if ValidTo was NA, otherwise it was deleted
+    # earlier.
     dplyr::mutate(
-      ValidTo = as_of
+      ValidTo = ifelse(is.na(.data$ValidTo),as_of, .data$ValidTo),
+      ValidTo = type_converter(as_of)(.data$ValidTo)
     )
 
   # Combine different conditions together into new table

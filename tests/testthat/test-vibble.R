@@ -6,7 +6,7 @@ test_that("creating vibble works", {
   expect_equal(colnames(x), c(colnames(m),"ValidFrom","ValidTo"))
   expect_true(all(is.na(x$ValidTo)))
   expect_true(all(x$ValidFrom == "v1"))
-  expect_equal(class(x), c("vibble","data.frame"))
+  expect_true("tbl_vdf" %in% class(x))
   expect_equal(vibble::vibble(m), vibble::vibble(m, as_of=lubridate::today()))
 })
 

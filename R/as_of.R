@@ -19,7 +19,7 @@
 #' vibble::as_of(vibble::vibble(iris, as_of="20220101"),"20220101")
 #' }
 as_of <- function(v, as_of=NULL) {
-  stopifnot(any(class(v) %in% "vibble"))
+  stopifnot(is_vibble(v))
 
   # as_of means either NULL (currently valid) or a specific time point.
   if (is.null(as_of))
@@ -42,7 +42,7 @@ as_of <- function(v, as_of=NULL) {
 
   # The final step of returning a non-vibble object is to remove the class type that
   # distinguishes it.
-  class(.x) <- class(.x)[!class(.x) %in% "vibble"]
+  class(.x) <- class(.x)[!class(.x) %in% "tbl_vdf"]
 
   .x
 }

@@ -23,6 +23,9 @@
 as_of <- function(v, as_of=NULL, exact = TRUE) {
   stopifnot(is_vibble(v))
 
+  if (nrow(v) == 0)
+    return(tibble::tibble())
+
   # Select the target version to extract:
   #
   #   as_of means either NULL (currently valid) or a specific time point.
@@ -38,7 +41,7 @@ as_of <- function(v, as_of=NULL, exact = TRUE) {
   } else if ( as_of %in% vers) {
     target <- as_of
   } else if ( !exact ) {
-    target <- vers[max(which(vers) < as_of)]
+    target <- vers[max(which(vers < as_of))]
   }
 
   # We extract data to individual rows and then filter on rows with the same version id

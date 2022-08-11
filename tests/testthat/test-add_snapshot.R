@@ -25,3 +25,11 @@ test_that("add_snapshot with different structure works", {
   expect_true(all(purrr::map(md$vlist[1:32], ~.$vid)=="2022-01-01"))
   expect_true(all(purrr::map(md$vlist[33:64],~.$vid)=="2022-01-02"))
 })
+
+test_that("empty vibble can be added to", {
+  expect_equal(nrow(vibble::vibble(tibble::tibble())), 0)
+  expect_equal(
+    add_snapshot(vibble(tibble::tibble(), as_of="v1"),iris, as_of="v2"),
+    vibble::vibble(iris, as_of="v2")
+  )
+})

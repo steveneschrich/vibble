@@ -35,7 +35,17 @@ add_snapshot <- function(v, snapshot, as_of = lubridate::now()) {
   #  - Combine with snapshot (new set of versions)
   #  - Nest the results so that vid's are combined into a list
   #  - Wrap this in a vibble (nest/unnest uses tibbles)
-  ut <- tidyr::unnest(v, cols = c("vlist")) |>
+
+  # Special-case an empty vibble, we cannot unnest it to a vid. And we don't know what
+  # type vid will be, so leave it empty. Otherwise, just unnest the vibble into duplicate
+  # rows with different vid's.
+  if (nrow(v) == 0) {
+    ut <- NULL
+  } else {
+    ut <- tidyr::unnest(v, cols = c("vlist"))
+  }
+
+  ut <- ut |>
     # Note that bind_rows takes care of two important things:
     # matching column names between the two (if they are out of order) and filling in missing
     # columns with NA's. This is exactly the behavior we need, since the result needs to be

@@ -31,10 +31,6 @@ vibble <- function(.x = tibble::tibble(), as_of=lubridate::today()) {
 }
 
 
-stopifdups <- function(.x) {
-  stopifnot("No duplicate rows allowed in vibble." = nrow(.x)==nrow(dplyr::distinct(.x)))
-}
-
 #' Convert data frame to a vibble
 #'
 #' @description This function will convert the input to a vibble

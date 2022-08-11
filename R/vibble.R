@@ -16,14 +16,16 @@
 vibble <- function(.x, as_of=lubridate::today()) {
 
   v <- .x
-  if ( !(utils::hasName(v, "vid"))) {
-    # A vibble is a tibble with a vid field.
-    v <- dplyr::mutate(v, vid = as_of)
+
+  if ( nrow(v) > 0 ) {
+    if ( !(utils::hasName(v, "vid"))) {
+      # A vibble is a tibble with a vid field.
+      v <- dplyr::mutate(v, vid = as_of)
+    }
+
+    # Collapse all versions into the same record
+    v <- tidyr::nest(v, vlist = .data$vid)
   }
-
-  # Collapse all versions into the same record
-  v <- tidyr::nest(v, vlist = .data$vid)
-
   # Return a vibble with the contents.
   new_vibble(v)
 }

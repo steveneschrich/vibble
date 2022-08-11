@@ -16,7 +16,7 @@ A vibble representing \code{.x} at the time point \code{as_of}.
 }
 \description{
 A versioned tibble (vibble) can be created from a data frame at a specific time point.
-This function will create the additional fields necessary to be a vibble.
+This function will create this data structure (type \code{tbl_vdf}).
 }
 \examples{
 \dontrun{

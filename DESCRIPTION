@@ -1,13 +1,12 @@
 Package: vibble
 Title: A Versioned Tibble to Store Data Over Time
-Version: 0.1.0.4
+Version: 0.1.1.1
 Authors@R: 
     person("Steven", "Eschrich", , "Steven.Eschrich@moffitt.org", role = c("aut", "cre"),
            comment = c(ORCID = "YOUR-ORCID-ID"))
 Description: This package implements a versioned tibble also known as a temporal table. The purpose
  is to store changes to a table over time such that one can pull out data as of specific time points
- or versions. To do this, the package implements a data frame with a few extra columns in the form 
- of a "temporal table". This involves a "ValidFrom" and "ValidTo" field for the purpose. Routines are
+ or versions. To do this, the package implements a data frame with an extra column. Routines are
  provided to make working with this data structure easy. 
 License: MIT + file LICENSE
 Encoding: UTF-8
@@ -17,12 +16,17 @@ Imports:
     dplyr,
     janitor,
     lubridate,
+    purrr,
     rlang,
+    tidyr,
     vctrs
 Suggests: 
     testthat (>= 3.0.0),
     magrittr,
-    tibble
+    tibble,
+    knitr,
+    rmarkdown
 Config/testthat/edition: 3
 Remotes:
   steveneschrich/vibble
+VignetteBuilder: knitr

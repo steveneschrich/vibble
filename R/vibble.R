@@ -1,7 +1,7 @@
 #' Construct a vibble as of a time point from a data frame
 #'
 #' @description A versioned tibble (vibble) can be created from a data frame at a specific time point.
-#' This function will create the additional fields necessary to be a vibble.
+#' This function will create this data structure (type `tbl_vdf`).
 #'
 #' @param .x A tibble/data frame to store
 #' @param as_of A date or version tag to store as the timepoint.
@@ -14,20 +14,18 @@
 #' vibble(iris, as_of="2022-01-01")
 #' }
 vibble <- function(.x, as_of=lubridate::today()) {
-  stopifdups(.x)
 
-  v <- new_vibble(.x)
-
-  if ( !(utils::hasName(v, "ValidFrom") && utils::hasName(v, "ValidTo"))) {
-    # A vibble is a tibble with a ValidFrom and ValidTo field.
-    v <- dplyr::mutate(
-      v,
-      ValidFrom = as_of,
-      ValidTo = type_converter(as_of)(NA)
-    )
+  v <- .x
+  if ( !(utils::hasName(v, "vid"))) {
+    # A vibble is a tibble with a vid field.
+    v <- dplyr::mutate(v, vid = as_of)
   }
 
-  v
+  # Collapse all versions into the same record
+  v <- tidyr::nest(v, vlist = .data$vid)
+
+  # Return a vibble with the contents.
+  new_vibble(v)
 }
 
 
@@ -45,21 +43,18 @@ stopifdups <- function(.x) {
 #' @return A vibble
 #' @export
 #'
-#' @examples
 as_vibble <- function(.x, as_of=lubridate::today()) {
-  stopifdups(.x)
 
   vibble(.x, as_of)
 }
 
-#' Title
+#' Vibble constructor
 #'
-#' @param x
+#' @param x A tibble-like object
 #'
-#' @return
+#' @return A vibble representing the data
 #' @export
 #'
-#' @examples
 new_vibble <- function(x) {
   tibble::new_tibble(x, class = "tbl_vdf")
 }

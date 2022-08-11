@@ -1,0 +1,20 @@
+#' Return list of versions
+#'
+#' @param v A vibble
+#'
+#' @return A sorted list of versions in the vibble.
+#' @export
+#'
+#' @examples
+#' if (FALSE) {
+#'    versions(vibble::vibble(iris))
+#' }
+versions <- function(v) {
+  stopifnot(is_vibble(v))
+
+  vers <- do.call("c",purrr::map(v$vlist, ~.$vid)) |>
+    unique() |>
+    sort()
+
+  vers
+}

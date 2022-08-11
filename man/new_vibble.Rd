@@ -2,13 +2,16 @@
 % Please edit documentation in R/vibble.R
 \name{new_vibble}
 \alias{new_vibble}
-\title{Title}
+\title{Vibble constructor}
 \usage{
 new_vibble(x)
 }
 \arguments{
-\item{x}{}
+\item{x}{A tibble-like object}
+}
+\value{
+A vibble representing the data
 }
 \description{
-Title
+Vibble constructor
 }

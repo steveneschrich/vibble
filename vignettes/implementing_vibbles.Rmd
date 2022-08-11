@@ -1,0 +1,70 @@
+---
+title: "Implementing a Versioned Tibble"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Implementing a Versioned Tibble}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(vibble)
+```
+
+Here we outline the approaches taken to the versioned tibble (vibble) implementation. There are a number of nuances to this type of representation. Edge cases is perhaps more accurate, at least for how it developed.
+
+# Functional View
+As this development matured, it became clear that the functionality and the implementation of the vibble are two very different things. Namely, a vibble is a data frame that can evolve over time. You add snapshots of data at differing timepoints and the data is stored in such a way that you can get back a data frame representing the state of the data at any given time. 
+
+Even in this description, however, there are several nuances.
+
+## Duplicate data
+One of the first things that came up (when writing unit tests) was whether or not duplicate entries can be supported by this data structure. It seems that both `iris` and `cars` have duplicate rows. When storing something in a vibble, records need to be compared to what is already present. Having a new record match two old records makes things confusing. If there aren't two new records, then one of them has been deleted? The solution here is that the code checks for duplicates before doing anything with the data and providing a warning that vibbles do not support duplicates.
+
+## What is versioning?
+Another issue that evolved over time (no pun intended), is the idea of a temporal database vs. a versioned database. There is literature on both of these concepts and they are different. A temporal database involves a linear view of time, with records being created and deleted over time. Whereas a versioned database is like git, in which branches and merging happen. Below are some papers/references I found on these topics which got me pointed in the right direction.
+
+- https://db.in.tum.de/~schuele/data/umbraAsATimeMachine.pdf?lang=en (Not completely relevant to my needs, but got me pointed in the right direction)
+- http://www.vldb.org/pvldb/vol10/p1130-huang.pdf (OrpheusDB: Nice implementation and description)
+- https://orpheus-db.github.io/index.html#features (OrpheusDB github)
+- https://db.in.tum.de/~schuele/data/tardis_demo.pdf?lang=en (TardisDB, love it not just for the name)
+- https://arxiv.org/abs/1409.0798 (DataHub, dataset version management)
+
+
+From the links and ideas above, it seems like we could potentially implement a middle-ground solution. Namely, we can store information at the level of versions under the assumption of linear versions (no crazy git associations yet). Under this assumption, we can get snapshots out under one of two assumptions
+
+- Time-oriented: requesting a versioned timepoint returns that timepoint. Requesting a non-versioned timepoint implies that the record was present before and after the timepoint (or that the timepoint requested is more recent than the latest timepoint, in which case all records at the most recent timepoint are provided).
+- Version-oriented: requesting a version simply returns all records tagged with that version number.
+
+In this view, versioning is simply tagging data records with versions at which the record is valid. If the record is not present at a given version, it is not tagged with that version. Then each record has a list of versions associated with it. This idea is not mine, it is a common approach to the problem.
+
+
+# Implementations
+Going from a general notion of a versioned table to a mature software implementation is a large jump. Several approaches were attempted and documented below.
+
+# ValidFrom/ValidTo
+The first iteration of implementation was to include a `ValidFrom` and `ValidTo` field to a tibble. This seemed pretty reasonable and allowed for arbitrary versions (e.g., non-dates) to be included in these fields. This is the general Temporal Table approach. If a date (or tag) is provided, identify all records with a `ValidFrom` earlier than the tag and `ValidTo` later than the tag (or NA, which indicates it is still valid in the most recent version).
+
+This approach seemed a very straightforward way to implement the idea. Several problems cropped up pretty quickly, however. The one that derailed the approach for me was the notion that a record may go away, then come back. I was storing file metadata, and a file had 2 hard links vs. 1 hard link for a few weeks. It screwed up the logic of ValidFrom/ValidTo. I could have added a second record for the second timepoint at which it had 1 hard link (so three records: first 1 hard link, 2 hard links, second 1 hard link). But it started to feel like I might find these kinds of problems cropping up everywhere.
+
+# Nest/Unnest
+The second iteration was to embrace the common solution of a "version list" for each record. Rather than have a single field represent an interval, a single field consisting of a list of version can be added to the data. This has implications with many, many versions but provides some convenient additional functionality. Once considering this implementation, it occurred to me that in the tidyverse one can use the `nest` and `unnest` commands for this purpose. It's not terribly efficient, but it is terribly simple from a programming perspective. We simply store all records at all timepoints with a `version` field representing the version or timepoint that the record was observed at. To compress into list form, one can just nest the records and accumulate the version field into a list. Storing data (or adding a timepoint) becomes trivial: unnest, combine, nest. 
+
+Retrieval from this structure is a bit more complicated. As described above, there appear to be two modes of access:
+
+By-version access means retrieve a dataset at a specific version. If the version doesn't exist in the structure, there is no data for that version. This is simply implemented by unnesting the structure and filtering to the specific version number.
+
+By-time access means finding the relevant version that exists prior to the time point requested. We don't know when a particular record may have been dropped, but we do know the state of the table at an earlier time point. So our best estimate of the table is as of the prior timepoint. This implementation then is also simple (filter on a specific version number), with the exception that we need to find the prior timepoint. The prior timepoint needs to be identified as the prior timepoint *across the entire dataset*. 
+
+Take an example: if Record A was added 1/1/2000 and Record B was added 1/3/2000 and Record A was not identified as being present (missing annotation), then if I want the data as of 1/4/2000 I would use the 1/3/2000 date as the most recent version. This would exclude Record A (no information at point 1/3/2000). 
+
+The example implies a simpler implementation than I originally thought. Rather than try to figure out what was deleted (which I needed to do in the ValidFrom/ValidTo implementation), I simply add the data for that timepoint. We can implement a function to "delete" a record at a particular timepoint and it would simply remove the version tag for that timepoint. 
+
+In the case of my motivating example of hard links, I would have record1 (1 hard link) at v1, then record2 (2 hard links) at v2, then record1 (1 hard link) at v3. This means only one unique record and the ability to query at each of these points.

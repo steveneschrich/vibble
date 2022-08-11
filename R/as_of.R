@@ -8,7 +8,9 @@
 #'
 #' @param v A vibble
 #' @param as_of A date to construct the snapshot from (assumed YYYY-MM-DD).
-#'
+#' @param exact Is `as_of` the exact version to use, or should we find the closest previous
+#' version to `as_of`. When using a date, this will find the date version in the vibble that
+#' is one version older.
 #' @return A data frame with contents representing a snapshot as of a specific time.
 #'
 #' @importFrom rlang .data
@@ -18,31 +20,44 @@
 #' \dontrun{
 #' vibble::as_of(vibble::vibble(iris, as_of="20220101"),"20220101")
 #' }
-as_of <- function(v, as_of=NULL) {
+as_of <- function(v, as_of=NULL, exact = TRUE) {
   stopifnot(is_vibble(v))
 
-  # as_of means either NULL (currently valid) or a specific time point.
-  if (is.null(as_of))
-    .x <- dplyr::filter(v, is.na(.data$ValidTo))
-  else
-    .x <- dplyr::filter(v, .data$ValidFrom <= as_of & (is.na(.data$ValidTo)  | .data$ValidTo > as_of))
+  # Select the target version to extract:
+  #
+  #   as_of means either NULL (currently valid) or a specific time point.
+  #    - If as_of is NULL, use the most recent timepoint
+  #    - If as_of is a valid version, use it
+  #    - If as_of is not a valid version, use the version just prior to it
+  vers <- versions(v)
+  stopifnot(is.null(as_of) || class(as_of)==class(vers))
 
+  target <- NA
+  if (is.null(as_of)) {
+    target <- vers[length(vers)]
+  } else if ( as_of %in% vers) {
+    target <- as_of
+  } else if ( !exact ) {
+    target <- vers[max(which(vers) < as_of)]
+  }
 
+  # We extract data to individual rows and then filter on rows with the same version id
+  # as target.
+  .x <- tidyr::unnest(v, cols = .data$vlist) |>
+    dplyr::filter(.data$vid == target) |>
+    dplyr::select(-.data$vid)
 
-  # The purpose of this function is to provide a snapshot. Therefore the indicator columns (ValidTo and
-  # ValidFrom) should be removed to masquerade as a simple data frame/tibble.
-  .x <- dplyr::select(.x, -.data$ValidTo, -.data$ValidFrom)
 
   # One of the aspects of the vibble is the idea that the structure can change over time. That
   # is, columns can be added or removed. Since we store the full contents in a table, this means
   # that at any given time point the set of valid columns can be different. For the time being,
   # we simply assume that any completely empty (NA) column when subsetting is one of these columns.
   # Hence, these are removed.
+  #
   .x <- janitor::remove_empty(.x, which = c("cols"))
 
-  # The final step of returning a non-vibble object is to remove the class type that
-  # distinguishes it.
-  class(.x) <- class(.x)[!class(.x) %in% "tbl_vdf"]
+  # Since the unnest results in a tibble, not vibble, there is no class change required. So
+  # we are done.
 
   .x
 }

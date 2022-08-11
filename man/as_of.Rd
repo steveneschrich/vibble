@@ -4,7 +4,7 @@
 \alias{as_of}
 \title{Extract a data frame from a vibble as of a certain version}
 \usage{
-as_of(v, as_of = NULL)
+as_of(v, as_of = NULL, exact = TRUE)
 }
 \arguments{
 \item{v}{A vibble}

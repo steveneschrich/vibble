@@ -13,7 +13,7 @@
 #' \dontrun{
 #' vibble(iris, as_of="2022-01-01")
 #' }
-vibble <- function(.x, as_of=lubridate::today()) {
+vibble <- function(.x = tibble::tibble(), as_of=lubridate::today()) {
 
   v <- .x
 

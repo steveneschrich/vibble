@@ -12,9 +12,12 @@
 versions <- function(v) {
   stopifnot(is_vibble(v))
 
-  vers <- do.call("c",purrr::map(v$vlist, ~.$vid)) |>
-    unique() |>
-    sort()
+  vers <- c()
+  if ( nrow(v) > 0) {
+    vers <- do.call("c",purrr::map(v$vlist, ~.$vid)) |>
+      unique() |>
+      sort()
+  }
 
   vers
 }

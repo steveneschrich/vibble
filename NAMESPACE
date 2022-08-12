@@ -3,7 +3,6 @@
 export(add_snapshot)
 export(as_of)
 export(as_vibble)
-export(is_tibble_structure_equal)
 export(is_vibble)
 export(new_vibble)
 export(type_converter)

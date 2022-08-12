@@ -14,7 +14,7 @@ versions <- function(v) {
 
   vers <- c()
   if ( nrow(v) > 0) {
-    vers <- do.call("c",purrr::map(v$vlist, ~.$vid)) |>
+    vers <- do.call("c",purrr::map(v$vlist, ~.)) |>
       unique() |>
       sort()
   }

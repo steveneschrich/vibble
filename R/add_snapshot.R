@@ -42,7 +42,7 @@ add_snapshot <- function(v, snapshot, as_of = lubridate::now()) {
   if (nrow(v) == 0) {
     ut <- NULL
   } else {
-    ut <- tidyr::unnest(v, cols = c("vlist"))
+    ut <- tidyr::unchop(v, "vlist") |> dplyr::rename(vid = .data$vlist)
   }
 
   ut <- ut |>
@@ -51,7 +51,8 @@ add_snapshot <- function(v, snapshot, as_of = lubridate::now()) {
     # columns with NA's. This is exactly the behavior we need, since the result needs to be
     # a union of all columns, with NA's filled in as needed.
     dplyr::bind_rows(snapshot) |>
-    tidyr::nest(vlist = .data$vid) |>
+    tidyr::chop("vid") |>
+    dplyr::rename(vlist = .data$vid) |>
     new_vibble()
 
   ut

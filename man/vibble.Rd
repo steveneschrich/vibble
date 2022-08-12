@@ -4,7 +4,7 @@
 \alias{vibble}
 \title{Construct a vibble as of a time point from a data frame}
 \usage{
-vibble(.x, as_of = lubridate::today())
+vibble(.x = tibble::tibble(), as_of = lubridate::today())
 }
 \arguments{
 \item{.x}{A tibble/data frame to store}

@@ -10,6 +10,10 @@ as_of(v, as_of = NULL, exact = TRUE)
 \item{v}{A vibble}
 
 \item{as_of}{A date to construct the snapshot from (assumed YYYY-MM-DD).}
+
+\item{exact}{Is \code{as_of} the exact version to use, or should we find the closest previous
+version to \code{as_of}. When using a date, this will find the date version in the vibble that
+is one version older.}
 }
 \value{
 A data frame with contents representing a snapshot as of a specific time.

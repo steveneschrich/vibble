@@ -23,8 +23,9 @@ vibble <- function(.x = tibble::tibble(), as_of=lubridate::today()) {
       v <- dplyr::mutate(v, vid = as_of)
     }
 
-    # Collapse all versions into the same record
-    v <- tidyr::nest(v, vlist = .data$vid)
+    # Collapse all versions into the same record. To be consistent, we rename the list as vlist
+    # vs. vid.
+    v <- tidyr::chop(v, .data$vid) |> dplyr::rename(vlist=.data$vid)
   }
   # Return a vibble with the contents.
   new_vibble(v)

@@ -22,8 +22,8 @@ test_that("add_snapshot with different structure works", {
   expect_equal(as_of(md, "2022-01-02"), m[,1:3])
   expect_equal(magrittr::set_rownames(md[1:32,1:3], NULL), magrittr::set_rownames(md[33:64,1:3], NULL))
   expect_true(all(is.na(md[33:64,4:12])))
-  expect_true(all(purrr::map(md$vlist[1:32], ~.$vid)=="2022-01-01"))
-  expect_true(all(purrr::map(md$vlist[33:64],~.$vid)=="2022-01-02"))
+  expect_true(all(purrr::map(md$vlist[1:32], ~.)=="2022-01-01"))
+  expect_true(all(purrr::map(md$vlist[33:64],~.)=="2022-01-02"))
 })
 
 test_that("empty vibble can be added to", {

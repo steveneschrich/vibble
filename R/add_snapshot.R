@@ -59,4 +59,37 @@ add_snapshot <- function(v, snapshot, as_of = lubridate::now()) {
 
 }
 
+#' Add a snapshot
+#'
+#' @description Given a data frame, update the vibble by adding a snapshot at the
+#' current version point.
+#'
+#' @details
+#' The algorithm involves adding a new version of all rows, then combining identical rows
+#' so that versions are listed together (in a vlist).
+#'
+#' @param v A vibble
+#' @param snapshot A new table with the same structure as vibble (without version data).
+#' @param as_of A date/version
+#'
+#' @return An updated vibble with newtbl merged in.
+#'
+#' @importFrom rlang .data
+#'
+#' @export
+#' @examples
+#' \dontrun{
+#' vibble::add_snapshot(vibble::vibble(iris, as_of="2022-01-01"), iris[1:10,], as_of="2022-01-02")
+#' }
+add_snapshot.data_frame <- function(v, snapshot, as_of = lubridate::now()) {
 
+  # Add as_of tag to snapshot (as vid)
+  snapshot <- dplyr::mutate(snapshot, vid = as_of)
+
+  # Combine  original data (v) and snapshot
+  v <- dplyr::bind_rows(v, snapshot)
+
+  v
+}
+
+# NB: Add in  S3 dispatch.

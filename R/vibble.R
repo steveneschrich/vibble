@@ -24,15 +24,15 @@ vibble <- function(.x = tibble::tibble(), as_of=lubridate::today()) {
       return(new_vibble(v))
     }
 
-    # If v does not have vlist or vid, then create vids based on the as_of variable.
-    if ( !(utils::hasName(v, "vid"))) {
-      # A vibble is a tibble with a vid field.
-      v <- dplyr::mutate(v, vid = as_of)
+    # If v does not have vlist, then create vlist based on the as_of variable.
+    if ( !(utils::hasName(v, "vlist"))) {
+      # A vibble is a tibble with a vlist field.
+      v <- dplyr::mutate(v, vlist = as_of)
     }
 
-    # At this point, we have a bunch of entries with vids. Collapse all versions into
-    # the same record. To be consistent, we rename the list as vlist vs. vid.
-    v <- tidyr::chop(v, .data$vid) |> dplyr::rename(vlist=.data$vid)
+    # At this point, we have a bunch of entries with vlist. Collapse all versions into
+    # the same record.
+    v <- tidyr::chop(v, .data$vlist)
   }
   # Return a vibble with the contents.
   new_vibble(v)

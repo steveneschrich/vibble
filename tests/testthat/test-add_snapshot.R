@@ -14,7 +14,17 @@ test_that("add_snapshot with same structure works", {
 
 })
 
+test_that("add_snapshot keeps the type of vlist", {
+  expect_equal(
+    vibble::vibble(m, as_of="2022-01-01") |> dplyr::pull("vlist") |> vctrs::vec_ptype(),
 
+  )
+    expect_equal(
+    add_snapshot(vibble::vibble(m, as_of="2022-01-01"),
+                 m, as_of="2022-01-02") |> dplyr::pull("vlist") |> vctrs::vec_ptype()
+
+  )
+})
 md <- add_snapshot(vibble::vibble(m, as_of="2022-01-01"), m[,1:3], as_of="2022-01-02")
 
 test_that("add_snapshot with different structure works", {

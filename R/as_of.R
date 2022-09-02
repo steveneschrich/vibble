@@ -48,12 +48,11 @@ as_of <- function(v, as_of=NULL, exact = TRUE) {
   # as target.
   x <- dplyr::mutate(
     v,
-    has_target = purrr::map_lgl(.data$vlist, ~any(.x %in% target)),
     vlist = purrr::map(.data$vlist, ~.x[which(.x %in% target)])
   ) |>
-    dplyr::filter(.data$has_target) |>
-    tidyr::unchop(.data$vlist) |>
-    dplyr::select(-.data$vlist, -.data$has_target)
+    tidyr::unchop(cols="vlist") |>
+    dplyr::filter(!is.na(.data$vlist)) |>
+    dplyr::select(-.data$vlist)
 
 
   # One of the aspects of the vibble is the idea that the structure can change over time. That
@@ -62,7 +61,7 @@ as_of <- function(v, as_of=NULL, exact = TRUE) {
   # we simply assume that any completely empty (NA) column when subsetting is one of these columns.
   # Hence, these are removed.
   #
-  x <- janitor::remove_empty(x, which = c("cols"))
+  x <- dplyr::select_if(x, ~!all(is.na(.)))
 
   # Since the unnest results in a tibble, not vibble, there is no class change required. So
   # we are done.

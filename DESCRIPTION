@@ -14,12 +14,10 @@ Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.1
 Imports: 
     dplyr,
-    janitor,
     lubridate,
     purrr,
     rlang,
-    tidyr,
-    vctrs
+    tidyr
 Suggests: 
     testthat (>= 3.0.0),
     magrittr,

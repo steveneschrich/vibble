@@ -24,15 +24,15 @@ vibble <- function(.x = tibble::tibble(), as_of=lubridate::today()) {
       return(new_vibble(v))
     }
 
-    # If v does not have vlist, then create vlist based on the as_of variable.
-    if ( !(utils::hasName(v, "vlist"))) {
-      # A vibble is a tibble with a vlist field.
-      v <- dplyr::mutate(v, vlist = as_of)
-    }
+
+    # A vibble is a tibble with a vlist field.
+    v <- dplyr::mutate(v, vlist = as_of)
 
     # At this point, we have a bunch of entries with vlist. Collapse all versions into
-    # the same record.
-    v <- tidyr::chop(v, .data$vlist)
+    # the same record. Note that tidyr::chop is fast for this, but we have to unbox the
+    # vctrs:: type back to plain old lists (for type consistency).
+    v <- tidyr::chop(v, .data$vlist) |>
+      dplyr::mutate(vlist = purrr::map(.data$vlist, unlist))
   }
   # Return a vibble with the contents.
   new_vibble(v)

@@ -19,14 +19,13 @@ vibble <- function(.x = tibble::tibble(), as_of=lubridate::today()) {
 
   if ( nrow(v) > 0 ) {
 
-    # If v has a vlist, this is already in the right form.
-    if ( utils::hasName(v, "vlist")) {
-      return(new_vibble(v))
+    # If v has a vlist, this is already in the right form but may not be consolidated (i.e.,
+    # duplicate rows with different vlist values). We can run through everything below
+    # other than setting the vlist variable, so special-case that action.
+    if ( !utils::hasName(v, "vlist")) {
+      # A vibble is a tibble with a vlist field.
+      v <- dplyr::mutate(v, vlist = as_of)
     }
-
-
-    # A vibble is a tibble with a vlist field.
-    v <- dplyr::mutate(v, vlist = as_of)
 
     # At this point, we have a bunch of entries with vlist. Collapse all versions into
     # the same record. Note that tidyr::chop is fast for this, but we have to unbox the

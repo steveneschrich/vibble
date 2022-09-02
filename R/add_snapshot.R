@@ -22,13 +22,13 @@
 #' }
 add_snapshot <- function(v, snapshot, as_of = lubridate::now()) {
 
-  # Assert v is a vibble and snapshot does not contain our key fields.
+  # Assert v is a vibble
   stopifnot(is_vibble(v))
-  stopifnot(!any(colnames(snapshot) %in% "vlist"))
 
-  # Add as_of tag to snapshot (as vlist)
-  snapshot <- dplyr::mutate(snapshot, vlist = list(as_of))
-
+  if ( !utils::hasName(snapshot, "vlist")) {
+    # Add as_of tag to snapshot (as vlist)
+    snapshot <- dplyr::mutate(snapshot, vlist = list(as_of))
+  }
 
   # Update approach for combining. This ws determined to be significantly faster in large
   # scale settings. The logic is to combine the data (existing vibble and snapshot). Then

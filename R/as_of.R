@@ -40,8 +40,11 @@ as_of <- function(v, as_of=NULL, exact = TRUE) {
     target <- vers[length(vers)]
   } else if ( as_of %in% vers) {
     target <- as_of
-  } else if ( !exact ) {
+  } else if ( !exact && as_of > min(vers) ) {
     target <- vers[max(which(vers < as_of))]
+  } else if ( !exact) {
+    warning(sprintf("Prehistoric Date detected: requested version (%s) earlier than first version (%s).",
+                    as_of, min(vers)))
   }
 
   # We extract data to individual rows and then filter on rows with the same version id

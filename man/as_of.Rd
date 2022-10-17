@@ -2,9 +2,12 @@
 % Please edit documentation in R/as_of.R
 \name{as_of}
 \alias{as_of}
+\alias{at}
 \title{Extract a data frame from a vibble as of a certain version}
 \usage{
-as_of(v, as_of = NULL, exact = TRUE)
+as_of(v, as_of = NULL, exact = FALSE)
+
+at(v, ...)
 }
 \arguments{
 \item{v}{A vibble}
@@ -14,18 +17,38 @@ as_of(v, as_of = NULL, exact = TRUE)
 \item{exact}{Is \code{as_of} the exact version to use, or should we find the closest previous
 version to \code{as_of}. When using a date, this will find the date version in the vibble that
 is one version older.}
+
+\item{...}{Parameters to pass to \code{\link[=as_of]{as_of()}}}
 }
 \value{
 A data frame with contents representing a snapshot as of a specific time.
 }
 \description{
 Given a table with information over time,
-retrieve data as of a specific time point.
+retrieve data as of a specific time point. Note the time point (version)
+need not exist in the data.
 }
 \details{
 The design pattern is documented in many places. For one description, see
 https://docs.microsoft.com/en-us/sql/relational-databases/tables/temporal-tables?view=sql-server-2017
+
+The idea behind the vibble is to store versions of the same data as it evolves
+over time or over versions. The purpose of this function is to retrieve a
+version of the data as it looked at the given version (\code{as_of}).
+
+This implies
+(correctly) that the \code{as_of} need not be explicitly in the data but rather a
+version that would have existed is returned (that is, the version just earlier
+than the requested \code{as_of}). The parameter \code{exact} can control this behavior. To
+make things clearer, the function \code{\link[=at]{at()}} can be used for exact matches. That is,
+when \code{exact} is \code{TRUE} then the result of requesting a version not present is an
+empty data frame.
 }
+\section{Functions}{
+\itemize{
+\item \code{at()}: Exact match to a version/date rather than inexact.
+
+}}
 \examples{
 \dontrun{
 vibble::as_of(vibble::vibble(iris, as_of="20220101"),"20220101")

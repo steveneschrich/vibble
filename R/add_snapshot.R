@@ -28,7 +28,11 @@ add_snapshot <- function(v, snapshot, as_of = lubridate::now()) {
   if ( !utils::hasName(snapshot, "vlist")) {
     # Add as_of tag to snapshot (as vlist)
     snapshot <- dplyr::mutate(snapshot, vlist = list(as_of))
+  } else if (!is.list(snapshot$vlist)) {
+    snapshot <- dplyr::mutate(snapshot, vlist = purrr::map(vlist, ~.x))
   }
+
+
 
   # Update approach for combining. This ws determined to be significantly faster in large
   # scale settings. The logic is to combine the data (existing vibble and snapshot). Then

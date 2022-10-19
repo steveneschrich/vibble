@@ -1,6 +1,6 @@
 Package: vibble
 Title: A Versioned Tibble to Store Data Over Time
-Version: 0.4.0
+Version: 0.5.0
 Authors@R: 
     person("Steven", "Eschrich", , "Steven.Eschrich@moffitt.org", role = c("aut", "cre"),
            comment = c(ORCID = "YOUR-ORCID-ID"))
